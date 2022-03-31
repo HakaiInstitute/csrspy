@@ -4,7 +4,7 @@ from typing import Optional
 
 from pyproj import Transformer
 
-from csrspy.datatypes import Geoid, Ref
+from csrspy.enums import Geoid, Ref
 
 
 class Factory(ABC):

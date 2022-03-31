@@ -1,24 +1,4 @@
-from dataclasses import astuple, dataclass
 from enum import Enum
-from typing import Optional, Tuple
-
-CoordTuple = Tuple[float, float, float, float]
-
-
-@dataclass
-class Coordinate:
-    x: float
-    y: float
-    z: float
-    t: float = None
-
-    @classmethod
-    def from_tuple(cls, tup: CoordTuple):
-        return cls(*tup)
-
-    def to_tuple(self, t: Optional[float] = None) -> tuple[float, ...]:
-        self.t = t if t is not None else self.t
-        return astuple(self)
 
 
 class Geoid(str, Enum):

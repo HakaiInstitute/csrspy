@@ -1,15 +1,18 @@
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Tuple, Union
 
 from pyproj import CRS, Transformer
 from pyproj.enums import TransformDirection
 
-from csrspy.datatypes import Coordinate, Geoid, Ref
+from csrspy.enums import Geoid, Ref
 from csrspy.factories import HelmertFactory, VerticalGridShiftFactory
+
+T_Coord3D = Tuple[float, float, float]
+T_Coord4D = Tuple[float, float, float, float]
 
 
 class CSRSTransformer(object):
-    def __init__(self, s_ref_frame: Ref, s_crs: Union[str, int], s_epoch: float, t_epoch: Optional[float] = None,
-                 t_vd: Optional[Geoid] = None, out: str = "geog", epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
+    def __init__(self, s_ref_frame: Union[Ref, str], s_crs: Union[str, int], s_epoch: float, t_epoch: Optional[float] = None,
+                 t_vd: Optional[Union[Geoid, str]] = None, out: str = "geog", epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
         """
         Creates a coordinate transformation object with configured source and target reference systems.
 
@@ -64,14 +67,21 @@ class CSRSTransformer(object):
 
         self.transforms.append(transform_out)
 
-    def forward(self, coords: Iterable[Coordinate]) -> Iterable[Coordinate]:
-        coords = list(coord.to_tuple(self.s_epoch) for coord in coords)
-        for p in self.transforms:
-            coords = list(p.itransform(coords))
-        return list(Coordinate.from_tuple((coord[0], coord[1], coord[2], self.t_epoch)) for coord in coords)
+    def _coord_3d_to_4d(self, coord: T_Coord3D) -> T_Coord4D:
+        return coord[0], coord[1], coord[2], self.s_epoch
 
-    def backward(self, coords: Iterable[Coordinate]) -> Iterable[Coordinate]:
-        coords = list(coord.to_tuple(self.s_epoch) for coord in coords)
+    @staticmethod
+    def _coord_4d_to_3d(coord: T_Coord4D) -> T_Coord3D:
+        return coord[0], coord[1], coord[2]
+
+    def forward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        coords = map(self._coord_3d_to_4d, coords)
+        for p in self.transforms:
+            coords = p.itransform(coords)
+        return map(self._coord_4d_to_3d, coords)
+
+    def backward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        coords = map(self._coord_3d_to_4d, coords)
         for p in self.transforms[::-1]:
-            coords = list(p.itransform(coords, direction=TransformDirection.INVERSE))
-        return list(Coordinate.from_tuple((coord[0], coord[1], coord[2], self.t_epoch)) for coord in coords)
+            coords = p.itransform(coords, direction=TransformDirection.INVERSE)
+        return map(self._coord_4d_to_3d, coords)
