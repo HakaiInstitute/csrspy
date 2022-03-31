@@ -1,6 +1,7 @@
 from typing import Iterable, Optional, Union
 
 from pyproj import CRS, Transformer
+from pyproj.enums import TransformDirection
 
 from csrspy.datatypes import Coordinate, Geoid, Ref
 from csrspy.factories import HelmertFactory, VerticalGridShiftFactory
@@ -69,5 +70,8 @@ class CSRSTransformer(object):
             coords = list(p.itransform(coords))
         return list(Coordinate.from_tuple((coord[0], coord[1], coord[2], self.t_epoch)) for coord in coords)
 
-    def backward(self):
-        return NotImplementedError
+    def backward(self, coords: Iterable[Coordinate]) -> Iterable[Coordinate]:
+        coords = list(coord.to_tuple(self.s_epoch) for coord in coords)
+        for p in self.transforms[::-1]:
+            coords = list(p.itransform(coords, direction=TransformDirection.INVERSE))
+        return list(Coordinate.from_tuple((coord[0], coord[1], coord[2], self.t_epoch)) for coord in coords)
