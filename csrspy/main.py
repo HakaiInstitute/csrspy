@@ -16,12 +16,12 @@ class CSRSTransformer(object):
         """
         Creates a coordinate transformation object with configured source and target reference systems.
 
-        :param s_ref_frame:
-        :param s_crs:
-        :param s_epoch:
-        :param t_epoch:
-        :param t_vd:
-        :param out:
+        :param s_ref_frame: The source reference frame. eg. "itrf14", "nad83csrs" or one of type `csrspy.enums.Ref` enumerated values.
+        :param s_crs: The source coordinate reference system. See [Proj docss](https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.__init__) for type options. eg. "EPSG:4326".
+        :param s_epoch: The source epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010.
+        :param t_epoch: The target epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010. If not provided, no epoch transformation occurs.
+        :param t_vd: The target orthometric heights model. See `csrspy.enums.Geoid` for options.
+        :param out: The output coordinate type for the coordinates once transformed to NAD83(CSRS). One of "geog", "cart", or e.g. "utm9", "utm10", "utm11", ...
         """
         super().__init__()
         self.s_epoch = s_epoch
@@ -75,12 +75,22 @@ class CSRSTransformer(object):
         return coord[0], coord[1], coord[2]
 
     def forward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        """
+        Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
+        :param coords:
+        :return:
+        """
         coords = map(self._coord_3d_to_4d, coords)
         for p in self.transforms:
             coords = p.itransform(coords)
         return map(self._coord_4d_to_3d, coords)
 
     def backward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        """
+        Transform the coordinates from the Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out` to s_ref_frame, s_crs, s_epoch.
+        :param coords:
+        :return:
+        """
         coords = map(self._coord_3d_to_4d, coords)
         for p in self.transforms[::-1]:
             coords = p.itransform(coords, direction=TransformDirection.INVERSE)
