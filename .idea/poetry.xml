@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PoetryConfigService">
+    <option name="poetryVirtualenvPaths">
+      <set>
+        <option value="$USER_HOME$/.cache/pypoetry/virtualenvs/las-trx-s6kULFgu-py3.9/bin/python" />
+        <option value="$USER_HOME$/.cache/pypoetry/virtualenvs/csrspy-oufits4S-py3.9/bin/python" />
+      </set>
+    </option>
+  </component>
+</project>

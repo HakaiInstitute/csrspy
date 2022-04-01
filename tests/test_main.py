@@ -132,6 +132,12 @@ from csrspy import CSRSTransformer, enums
             (472952.339, 5363983.280, 18.806),
             0.001, 0.018
     ),
+    (
+            {'s_ref_frame': enums.Ref.ITRF14, 's_crs': "EPSG:32610", 's_epoch': 2019.500, 't_epoch': 1997.000, 'out': "utm10"},
+            (408125.360, 5635102.830, 2170.790),
+            (408126.754, 5635102.429, 2170.925),
+            0.001, 0.001
+    ),
 ])
 def test_csrs_transformer_forward(transform_config, test_input, expected, xy_err, h_err):
     trans = CSRSTransformer(**transform_config)
