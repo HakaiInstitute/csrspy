@@ -138,6 +138,24 @@ from csrspy import CSRSTransformer, enums
             (408126.754, 5635102.429, 2170.925),
             0.001, 0.001
     ),
+    (
+            {'s_ref_frame': enums.Ref.ITRF14, 's_crs': "+proj=utm +zone=10 +datum=WGS84 +units=m +no_def", 's_epoch': 2010, 'out': "utm10"},
+            (472953.533, 5363982.768, -0.196),
+            (472954.864, 5363982.321, 0.095),
+            0.001, 0.001
+    ),
+    (
+            {'s_ref_frame': enums.Ref.ITRF14, 's_crs': "+proj=cart +datum=WGS84 +no_defs", 's_epoch': 2010, 'out': "utm10"},
+            (-2332023.000, -3541319.000, 4748619.000),
+            (472953.500, 5363982.747, -0.191),
+            0.001, 0.001
+    ),
+    (
+            {'s_ref_frame': enums.Ref.ITRF14, 's_crs': "+proj=longlat +datum=WGS84 +no_defs", 's_epoch': 2010, 'out': "utm10"},
+            (-123.365646, 48.428421, 0),
+            (472952.399, 5363983.346, 0.291),
+            0.001, 0.001
+    ),
 ])
 def test_csrs_transformer_forward(transform_config, test_input, expected, xy_err, h_err):
     trans = CSRSTransformer(**transform_config)
