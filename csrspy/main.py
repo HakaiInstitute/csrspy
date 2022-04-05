@@ -1,71 +1,68 @@
-from typing import Iterable, Optional, Tuple, Union
-
 from pyproj import CRS, Transformer
 from pyproj.enums import TransformDirection
+from typing import Iterable, Optional, Tuple, Union
 
-from csrspy.enums import Geoid, Ref
+from csrspy.enums import CoordType, VerticalDatum, Reference
 from csrspy.factories import HelmertFactory, VerticalGridShiftFactory
 
 T_Coord3D = Tuple[float, float, float]
 T_Coord4D = Tuple[float, float, float, float]
 
 
-class CSRSTransformer(object):
-    def __init__(self, s_ref_frame: Union[Ref, str], s_crs: Union[str, int], s_epoch: float, t_epoch: Optional[float] = None,
-                 t_vd: Optional[Union[Geoid, str]] = None, out: str = "geog", epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
-        """
-        Creates a coordinate transformation object with configured source and target reference systems.
-
-        :param s_ref_frame: The source reference frame. eg. "itrf14", "nad83csrs" or one of type `csrspy.enums.Ref` enumerated values.
-        :param s_crs: The source coordinate reference system. See [Proj docss](https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.__init__) for type options. eg. "EPSG:4326".
-        :param s_epoch: The source epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010.
-        :param t_epoch: The target epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010. If not provided, no epoch transformation occurs.
-        :param t_vd: The target orthometric heights model. See `csrspy.enums.Geoid` for options.
-        :param out: The output coordinate type for the coordinates once transformed to NAD83(CSRS). One of "geog", "cart", or e.g. "utm9", "utm10", "utm11", ...
-        """
+class ITRFtoNAD83:
+    def __init__(self, s_ref_frame: Union[Reference, str], s_coords: Union[str, CoordType], s_epoch: float,
+                 t_coords: Union[str, CoordType] = None, t_epoch: float = None,
+                 t_vd: Union[VerticalDatum, str] = VerticalDatum.GRS80,
+                 epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
         super().__init__()
+        self.s_ref_frame = s_ref_frame
+        self.s_coords = s_coords
+        self.t_coords = t_coords if t_coords is not None else s_coords
         self.s_epoch = s_epoch
         self.t_epoch = t_epoch if t_epoch is not None else s_epoch
+        self.t_vd = t_vd
+        self.epoch_shift_grid = epoch_shift_grid
+
         self.transforms = []
 
-        # 1. ITRFxx Ellips -> NAD83(CSRS) Ellips
-        in_crs = CRS.from_user_input(s_crs)
+        # 1. ITRFxx Ellips -> ECEF GRS80
+        in_crs = CRS.from_proj4(self._coord_type_to_proj4(self.s_coords))
         grs80_crs = CRS.from_proj4("+proj=cart +ellps=GRS80")
         transform_in2cartestian = Transformer.from_crs(in_crs, grs80_crs)
         self.transforms.append(transform_in2cartestian)
 
-        transform_helmert = HelmertFactory.from_ref_frame(s_ref_frame).transformer
+        # 2. ECEF GRS80 -> NAD83
+        transform_helmert = HelmertFactory.from_ref_frame(self.s_ref_frame).transformer
         self.transforms.append(transform_helmert)
 
-        # 2. NAD83(CSRS) Ellips s_epoch -> NAD83(CSRS) Ellips t_epoch
-        if t_epoch is not None and abs(t_epoch - s_epoch) > 1e-8:
+        # 3. NAD83(CSRS) Ellips s_epoch -> NAD83(CSRS) Ellips t_epoch
+        if abs(self.t_epoch - self.s_epoch) > 1e-8:
             # Epoch shift transform
-            epoch_shift_proj_str = f"+inv +proj=deformation +t_epoch={t_epoch:.5f} +grids={epoch_shift_grid}"
+            epoch_shift_proj_str = f"+inv +proj=deformation +t_epoch={self.t_epoch:.5f} +grids={self.epoch_shift_grid}"
             transform_epoch_shift = Transformer.from_pipeline(epoch_shift_proj_str)
             self.transforms.append(transform_epoch_shift)
 
-        # Convert cartographic coords to lonlat in radians
+        # 4. Convert cartographic coords to lonlat in radians
         transform_lonlat2rad = Transformer.from_pipeline("+inv +proj=cart +ellps=GRS80")
         self.transforms.append(transform_lonlat2rad)
 
-        # 3. NAD83(CSRS) Ellips t_epoch -> NAD83(CSRS) Orthometric t_epoch
-        transform_vshift = VerticalGridShiftFactory(t_vd).transformer
+        # 5. NAD83(CSRS) Ellips t_epoch -> NAD83(CSRS) Orthometric t_epoch
+        transform_vshift = VerticalGridShiftFactory(self.t_vd).transformer
         self.transforms.append(transform_vshift)
 
-        # 4. Final transform to output
-        if out == "cart":
-            transform_out = Transformer.from_pipeline("+proj=cart")
-
-        elif out[:3] == "utm":
-            zone = int(out[3:])
-            transform_out = Transformer.from_pipeline(f"+proj=utm +zone={zone}")
-
-        else:  # out == "geog":
-            # Convert lonlat in radians to latlon in degrees
-            transform_out = Transformer.from_pipeline(
-                "+proj=pipeline +step +proj=unitconvert +xy_in=rad +xy_out=deg +step +proj=axisswap +order=2,1")
-
+        # 6. Final transform to output
+        transform_out = Transformer.from_pipeline(self._coord_type_to_proj4(self.t_coords))
         self.transforms.append(transform_out)
+
+    @staticmethod
+    def _coord_type_to_proj4(coord_type: CoordType) -> str:
+        if coord_type == CoordType.GEOG:
+            return "+proj=longlat +datum=WGS84 +no_defs"
+        if coord_type == CoordType.CART:
+            return "+proj=cart +datum=WGS84 +no_defs"
+        else:
+            zone = int(coord_type.value[3:])
+            return f"+proj=utm +zone={zone} +datum=WGS84 +units=m +no_defs"
 
     def _coord_3d_to_4d(self, coord: T_Coord3D) -> T_Coord4D:
         return coord[0], coord[1], coord[2], self.s_epoch
@@ -74,24 +71,125 @@ class CSRSTransformer(object):
     def _coord_4d_to_3d(coord: T_Coord4D) -> T_Coord3D:
         return coord[0], coord[1], coord[2]
 
-    def forward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+    def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
         """
         Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
         :param coords:
         :return:
         """
-        coords = map(self._coord_3d_to_4d, coords)
-        for p in self.transforms:
-            coords = p.itransform(coords)
-        return map(self._coord_4d_to_3d, coords)
+        coords = list(map(self._coord_3d_to_4d, coords))
 
-    def backward(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        for trans in self.transforms:
+            coords = list(trans.itransform(coords, direction=TransformDirection.FORWARD))
+
+        return list(map(self._coord_4d_to_3d, coords))
+
+    
+class NAD83toITRF(ITRFtoNAD83):
+    def __init__(self, t_ref_frame: Union[Reference, str], t_coords: Union[str, CoordType], t_epoch: float,
+                 s_coords: Union[str, CoordType] = None, s_epoch: float = None,
+                 s_vd: Union[VerticalDatum, str] = VerticalDatum.GRS80, epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
+        super().__init__(t_ref_frame, t_coords, t_epoch, s_coords, s_epoch, s_vd, epoch_shift_grid)
+
+    def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
         """
-        Transform the coordinates from the Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out` to s_ref_frame, s_crs, s_epoch.
+        Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
         :param coords:
         :return:
         """
-        coords = map(self._coord_3d_to_4d, coords)
-        for p in self.transforms[::-1]:
-            coords = p.itransform(coords, direction=TransformDirection.INVERSE)
-        return map(self._coord_4d_to_3d, coords)
+        coords = list(map(self._coord_3d_to_4d, coords))
+
+        for trans in self.transforms[::-1]:
+            coords = list(trans.itransform(coords, direction=TransformDirection.INVERSE))
+
+        return list(map(self._coord_4d_to_3d, coords))
+
+
+class CSRSTransformer(object):
+    def __init__(self, *, s_ref_frame: Union[Reference, str], s_coords: Union[str, CoordType],
+                 s_epoch: float, s_vd: Union[VerticalDatum, str] = None,
+                 t_ref_frame: Union[Reference, str], t_coords: Union[str, CoordType] = None,
+                 t_epoch: float = None, t_vd: Union[VerticalDatum, str] = None,
+                 epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
+        """
+        Creates a coordinate transformation object with configured source and target reference systems.
+
+        :param s_ref_frame: The source reference frame. eg. "itrf14", "nad83csrs" or one of type `csrspy.enums.Ref` enumerated values.
+        :param s_coords: The source coordinate type. eg. "geog", "cart", "utm10", "utm22"
+        :param s_epoch: The source epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010.
+        :param s_vd: The source orthometric heights model. See `csrspy.enums.Geoid` for options.
+        :param t_ref_frame: The target reference frame. eg. "itrf14", "nad83csrs" or one of type `csrspy.enums.Ref` enumerated values.
+        :param t_coords: The target coordinate type. eg. "geog", "cart", "utm10", "utm22"
+        :param t_epoch: The target epoch in decimal year format. eg. `2010.5` to specify day 365/2 (June?) of the year 2010.
+        :param t_vd: The target orthometric heights model. See `csrspy.enums.Geoid` for options.
+        :param epoch_shift_grid: The name of the proj grid file used for epoch transformations. Defaults to "ca_nrc_NAD83v70VG.tif"
+        """
+        super().__init__()
+        self.s_ref_frame = s_ref_frame
+        self.t_ref_frame = t_ref_frame
+        self.s_coords = s_coords
+        self.t_coords = t_coords if t_coords is not None else s_coords
+        self.s_epoch = s_epoch
+        self.t_epoch = t_epoch if t_epoch is not None else s_epoch
+        self.s_vd = s_vd
+        self.t_vd = t_vd if t_vd is not None else s_vd
+        self.epoch_shift_grid = epoch_shift_grid
+
+        self.validate_crs(s_ref_frame, s_vd)
+        self.validate_crs(t_ref_frame, t_vd)
+
+        if self.is_itrf(s_ref_frame) and self.is_nad83(t_ref_frame):
+            self.transformers = [ITRFtoNAD83(s_ref_frame=self.s_ref_frame, s_coords=self.s_coords, s_epoch=self.s_epoch,
+                                             t_coords=self.t_coords, t_epoch=self.t_epoch, t_vd=self.t_vd,
+                                             epoch_shift_grid=self.epoch_shift_grid)]
+
+        elif self.is_nad83(s_ref_frame) and self.is_itrf(t_ref_frame):
+            self.transformers = [NAD83toITRF(t_ref_frame=self.t_ref_frame, t_coords=self.t_coords, t_epoch=self.t_epoch,
+                                             s_coords=self.s_coords, s_epoch=self.s_epoch, s_vd=self.s_vd,
+                                             epoch_shift_grid=self.epoch_shift_grid)]
+
+        elif self.is_itrf(s_ref_frame) and self.is_itrf(t_ref_frame):
+            self.transformers = [
+                ITRFtoNAD83(s_ref_frame=self.s_ref_frame, s_coords=self.s_coords, s_epoch=self.s_epoch,
+                            t_coords=self.t_coords, t_epoch=self.t_epoch, t_vd=VerticalDatum.GRS80,
+                            epoch_shift_grid=self.epoch_shift_grid),
+                NAD83toITRF(t_ref_frame=self.t_ref_frame, t_coords=self.t_coords, t_epoch=self.t_epoch,
+                            s_coords=self.t_coords, s_epoch=self.t_epoch, s_vd=VerticalDatum.WGS84,
+                            epoch_shift_grid=self.epoch_shift_grid)
+            ]
+
+        elif self.is_nad83(s_ref_frame) and self.is_nad83(t_ref_frame):
+            self.transformers = [
+                NAD83toITRF(t_ref_frame=Reference.ITRF14, t_coords=self.t_coords, t_epoch=self.t_epoch,
+                            s_coords=self.s_coords, s_epoch=self.s_epoch, s_vd=self.s_vd,
+                            epoch_shift_grid=self.epoch_shift_grid),
+                ITRFtoNAD83(s_ref_frame=Reference.ITRF14, s_coords=self.t_coords, s_epoch=self.t_epoch,
+                            t_coords=self.t_coords, t_epoch=self.t_epoch, t_vd=self.t_vd,
+                            epoch_shift_grid=self.epoch_shift_grid),
+            ]
+
+    @staticmethod
+    def is_nad83(ref_frame: Reference):
+        return ref_frame == Reference.NAD83CSRS
+
+    @staticmethod
+    def is_itrf(ref_frame: Reference):
+        return ref_frame != Reference.NAD83CSRS
+
+    def validate_crs(self, ref_frame: Reference, vd: Optional[VerticalDatum]):
+        if self.is_itrf(ref_frame):
+            assert vd is VerticalDatum.WGS84, f"{ref_frame} must use VerticalDatum WGS84."
+        elif self.is_nad83(ref_frame):
+            assert vd is not VerticalDatum.WGS84, f"{ref_frame} must use VerticalDatum GRS80, CGG2013a, CGG2013, or HT2_2010v70."
+
+    def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
+        """
+        Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
+        :param coords:
+        :return:
+        """
+
+        for transformer in self.transformers:
+            coords = transformer(coords)
+
+        return coords
