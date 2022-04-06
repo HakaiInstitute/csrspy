@@ -29,6 +29,10 @@ class Reference(str, Enum):
 class CoordType(str, Enum):
     GEOG = 'geog'
     CART = 'cart'
+    UTM3 = 'utm3'
+    UTM4 = 'utm4'
+    UTM5 = 'utm5'
+    UTM6 = 'utm6'
     UTM7 = 'utm7'
     UTM8 = 'utm8'
     UTM9 = 'utm9'
@@ -45,3 +49,4 @@ class CoordType(str, Enum):
     UTM20 = 'utm20'
     UTM21 = 'utm21'
     UTM22 = 'utm22'
+    UTM23 = 'utm23'
