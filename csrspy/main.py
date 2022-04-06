@@ -10,6 +10,8 @@ T_Coord4D = Tuple[float, float, float, float]
 
 
 class ITRFtoNAD83:
+    direction = TransformDirection.FORWARD
+
     def __init__(self, s_ref_frame: Union[Reference, str], s_coords: Union[str, CoordType], s_epoch: float,
                  t_coords: Union[str, CoordType] = None, t_epoch: float = None,
                  t_vd: Union[VerticalDatum, str] = VerticalDatum.GRS80,
@@ -77,32 +79,21 @@ class ITRFtoNAD83:
         :param coords:
         :return:
         """
-        coords = list(map(self._coord_3d_to_4d, coords))
-
+        coords = map(self._coord_3d_to_4d, coords)
         for trans in self.transforms:
-            coords = list(trans.itransform(coords, direction=TransformDirection.FORWARD))
-
-        return list(map(self._coord_4d_to_3d, coords))
+            coords = trans.itransform(coords, direction=self.direction)
+        return map(self._coord_4d_to_3d, coords)
 
     
 class NAD83toITRF(ITRFtoNAD83):
+    """This class is the same as ITRFtoNAD83, but does all transformations in reverse."""
+    direction = TransformDirection.INVERSE
+
     def __init__(self, t_ref_frame: Union[Reference, str], t_coords: Union[str, CoordType], t_epoch: float,
                  s_coords: Union[str, CoordType] = None, s_epoch: float = None,
                  s_vd: Union[VerticalDatum, str] = VerticalDatum.GRS80, epoch_shift_grid: str = "ca_nrc_NAD83v70VG.tif"):
         super().__init__(t_ref_frame, t_coords, t_epoch, s_coords, s_epoch, s_vd, epoch_shift_grid)
-
-    def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
-        """
-        Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
-        :param coords:
-        :return:
-        """
-        coords = list(map(self._coord_3d_to_4d, coords))
-
-        for trans in self.transforms[::-1]:
-            coords = list(trans.itransform(coords, direction=TransformDirection.INVERSE))
-
-        return list(map(self._coord_4d_to_3d, coords))
+        self.transforms.reverse()
 
 
 class CSRSTransformer(object):
