@@ -145,7 +145,7 @@ class CSRSTransformer(object):
                             t_coords=self.t_coords, t_epoch=self.t_epoch, t_vd=VerticalDatum.GRS80,
                             epoch_shift_grid=self.epoch_shift_grid),
                 NAD83toITRF(t_ref_frame=self.t_ref_frame, t_coords=self.t_coords, t_epoch=self.t_epoch,
-                            s_coords=self.t_coords, s_epoch=self.t_epoch, s_vd=VerticalDatum.WGS84,
+                            s_coords=self.t_coords, s_epoch=self.t_epoch, s_vd=VerticalDatum.GRS80,
                             epoch_shift_grid=self.epoch_shift_grid)
             ]
 
@@ -169,9 +169,7 @@ class CSRSTransformer(object):
 
     def validate_crs(self, ref_frame: Reference, vd: Optional[VerticalDatum]):
         if self.is_itrf(ref_frame):
-            assert vd is VerticalDatum.WGS84, f"{ref_frame} must use VerticalDatum WGS84."
-        elif self.is_nad83(ref_frame):
-            assert vd is not VerticalDatum.WGS84, f"{ref_frame} must use VerticalDatum GRS80, CGG2013a, CGG2013, or HT2_2010v70."
+            assert vd is VerticalDatum.GRS80, f"{ref_frame} must use VerticalDatum WGS84."
 
     def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
         """

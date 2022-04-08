@@ -124,8 +124,6 @@ class VerticalGridShiftFactory(Factory):
 
     @property
     def proj_str(self):
-        if self.grid_shift is VerticalDatum.WGS84:
-            return "+proj=noop"
         if self.grid_shift is VerticalDatum.GRS80:
             return "+proj=noop"
         else:
