@@ -1,6 +1,8 @@
 # CSRSPY
 
-ITRF/NAD83CSRS coordinate transforms in Python.
+[![PyPI version](https://badge.fury.io/py/csrspy.svg)](https://badge.fury.io/py/csrspy)
+
+*ITRF/NAD83CSRS coordinate transforms in Python.*
 
 ## Installation
 
