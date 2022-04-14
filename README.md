@@ -1,6 +1,7 @@
 # CSRSPY
 
 [![PyPI version](https://badge.fury.io/py/csrspy.svg)](https://badge.fury.io/py/csrspy)
+[![tests](https://github.com/tayden/csrspy/actions/workflows/tests.yml/badge.svg)](https://github.com/tayden/csrspy/actions/workflows/tests.yml)
 
 *ITRF/NAD83CSRS coordinate transforms in Python.*
 
