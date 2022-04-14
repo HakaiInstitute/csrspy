@@ -7,7 +7,7 @@
 
 ## Installation
 
-Install with `pip install csrspy
+Install with `pip install csrspy`
 
 ## About
 
