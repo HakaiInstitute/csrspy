@@ -35,5 +35,6 @@ jobs:
           poetry update
           poetry run pip install --upgrade setuptools
           poetry install
+          poetry run pyproj sync --area-of-use=Canada
       - name: Run tests
-        run: poetry run pytest tests
+        run: poetry run pytest
