@@ -31,12 +31,9 @@ transformer = CSRSTransformer(s_ref_frame=Reference.ITRF14, t_ref_frame=Referenc
                               s_epoch=2002, t_epoch=2000,
                               s_vd=VerticalDatum.GRS80, t_vd=VerticalDatum.GRS80)
 
-in_coords = [
-    (-123.365646, 48.428421, 0)
-]
+in_coords = [(-123.365646, 48.428421, 0)]
 out_coords = list(transformer(in_coords))
 
 print(out_coords)
-# >> (472951.082, 5363983.805, 0.001)
+# >> [(472951.082, 5363983.805, 0.001)]
 ```
-
