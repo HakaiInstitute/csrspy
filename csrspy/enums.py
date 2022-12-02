@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class VerticalDatum(str, Enum):
+    WGS84 = "wgs84"
     GRS80 = "grs80"
     CGG2013A = "cgg2013a"
     CGG2013 = "cgg2013"
@@ -9,6 +10,7 @@ class VerticalDatum(str, Enum):
 
 
 class Reference(str, Enum):
+    WGS84 = "wgs84"
     NAD83CSRS = 'nad83csrs'
     ITRF88 = 'itrf88'
     ITRF89 = 'itrf89'
