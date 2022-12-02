@@ -269,6 +269,17 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
             (472952.399, 5363983.346, 0.291),
             0.001, 0.001
     ),
+    (
+            {
+                "s_ref_frame": Reference.WGS84, 't_ref_frame': Reference.NAD83CSRS,
+                's_coords': CoordType.GEOG, 't_coords': CoordType.UTM10,
+                's_epoch': 2002, 't_epoch': 2010,
+                's_vd': VerticalDatum.WGS84, 't_vd': VerticalDatum.HT2_2010v70
+            },
+            (-123.365646, 48.428421, 0),
+            (472952.339, 5363983.280, 18.806),
+            0.001, 0.018
+    ),
 ])
 def test_csrs_transformer_itrf_to_nad83(transform_config, test_input, expected, xy_err, h_err):
     trans = CSRSTransformer(**transform_config)
@@ -539,6 +550,17 @@ def test_csrs_transformer_itrf_to_nad83(transform_config, test_input, expected, 
                 't_coords': CoordType.GEOG, 's_coords': CoordType.UTM10,
                 't_epoch': 2010.00, 's_epoch': 2010.000,
                 't_vd': VerticalDatum.GRS80, 's_vd': VerticalDatum.GRS80
+            },
+            (472952.399, 5363983.346, 0.291),
+            (-123.365646, 48.428421, 0),
+            1e-7, 0.001
+    ),
+    (
+            {
+                "t_ref_frame": Reference.WGS84, 's_ref_frame': Reference.NAD83CSRS,
+                't_coords': CoordType.GEOG, 's_coords': CoordType.UTM10,
+                't_epoch': 2010.00, 's_epoch': 2010.000,
+                't_vd': VerticalDatum.WGS84, 's_vd': VerticalDatum.GRS80
             },
             (472952.399, 5363983.346, 0.291),
             (-123.365646, 48.428421, 0),
