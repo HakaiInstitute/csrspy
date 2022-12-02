@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Union
 
 from pyproj import Transformer
 
@@ -47,7 +48,7 @@ class HelmertFactory(Factory):
                f"s={self.s * 1e-3:.8f} ds={self.ds * 1e-3:.8f}"
 
     @classmethod
-    def from_ref_frame(cls, ref_frame: Reference):
+    def from_ref_frame(cls, ref_frame: Union[Reference, str]):
         if ref_frame == Reference.NAD83CSRS:
             return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2010)
 
