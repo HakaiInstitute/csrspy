@@ -194,11 +194,14 @@ class CSRSTransformer(object):
 
     def validate_crs(self, ref_frame: Reference, vd: Optional[VerticalDatum]):
         if self.is_itrf(ref_frame):
-            assert vd is VerticalDatum.GRS80, f"{ref_frame} must use VerticalDatum GRS80."
+            assert vd is VerticalDatum.GRS80, \
+                f"{ref_frame} must use VerticalDatum GRS80."
         elif self.is_wgs84(ref_frame):
-            assert (vd is VerticalDatum.WGS84) or (vd is VerticalDatum.GRS80), f"{ref_frame} must use VerticalDatum WGS84 or GRS80."
+            assert (vd is VerticalDatum.WGS84) or (vd is VerticalDatum.GRS80), \
+                f"{ref_frame} must use VerticalDatum WGS84 or GRS80."
         elif self.is_nad83(ref_frame):
-            assert vd is not VerticalDatum.WGS84, f"{ref_frame} must not use VerticalDatum WGS84."
+            assert vd is not VerticalDatum.WGS84, \
+                f"{ref_frame} must not use VerticalDatum WGS84."
 
     def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
         """
