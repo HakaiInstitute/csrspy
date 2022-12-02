@@ -84,7 +84,7 @@ class ITRFtoNAD83:
             coords = trans.itransform(coords, direction=self.direction)
         return map(self._coord_4d_to_3d, coords)
 
-    
+
 class NAD83toITRF(ITRFtoNAD83):
     """This class is the same as ITRFtoNAD83, but does all transformations in reverse."""
     direction = TransformDirection.INVERSE
@@ -165,11 +165,19 @@ class CSRSTransformer(object):
 
     @staticmethod
     def is_itrf(ref_frame: Reference):
-        return ref_frame != Reference.NAD83CSRS
+        return ref_frame != Reference.NAD83CSRS and ref_frame != Reference.WGS84
+
+    @staticmethod
+    def is_wgs84(ref_frame: Reference):
+        return ref_frame == Reference.WGS84
 
     def validate_crs(self, ref_frame: Reference, vd: Optional[VerticalDatum]):
         if self.is_itrf(ref_frame):
             assert vd is VerticalDatum.GRS80, f"{ref_frame} must use VerticalDatum GRS80."
+        elif self.is_wgs84(ref_frame):
+            assert vd is VerticalDatum.WGS84, f"{ref_frame} must use VerticalDatum WGS84."
+        elif self.is_nad83(ref_frame):
+            assert vd is not VerticalDatum.WGS84, f"{ref_frame} must not use VerticalDatum WGS84."
 
     def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
         """
