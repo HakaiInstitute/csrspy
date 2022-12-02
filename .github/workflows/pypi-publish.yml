@@ -41,5 +41,6 @@ jobs:
       env:
         POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
       run: |
+        echo "__version__ = '${{ env.tag }}\n'" >> ./csrspy/__init__.py
         poetry version ${{ env.tag }}
         poetry publish --build
