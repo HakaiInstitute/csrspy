@@ -577,7 +577,7 @@ def test_csrs_transformer_nad83_vd_to_grs80_transform():
 
     assert pytest.approx(out[0], abs=0.001) == 472952.272
     assert pytest.approx(out[1], abs=0.001) == 5363983.238
-    assert pytest.approx(out[2], abs=0.018) == 0.302
+    assert pytest.approx(out[2], abs=0.01) == 0.302
 
 
 def test_csrs_transformer_itrf_to_itrf_transform():

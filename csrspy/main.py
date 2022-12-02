@@ -59,12 +59,12 @@ class ITRFtoNAD83:
     @staticmethod
     def _coord_type_to_proj4(coord_type: CoordType) -> str:
         if coord_type == CoordType.GEOG:
-            return "+proj=longlat +datum=WGS84 +no_defs"
+            return "+proj=longlat +ellps=GRS80 +no_defs"
         if coord_type == CoordType.CART:
-            return "+proj=cart +datum=WGS84 +no_defs"
+            return "+proj=cart +ellps=GRS80 +no_defs"
         else:
             zone = int(coord_type.value[3:])
-            return f"+proj=utm +zone={zone} +datum=WGS84 +units=m +no_defs"
+            return f"+proj=utm +zone={zone} +ellps=GRS80 +units=m +no_defs"
 
     def _coord_3d_to_4d(self, coord: T_Coord3D) -> T_Coord4D:
         return coord[0], coord[1], coord[2], self.s_epoch
