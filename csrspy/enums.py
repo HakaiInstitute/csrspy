@@ -25,6 +25,7 @@ class Reference(str, Enum):
     ITRF05 = 'itrf05'
     ITRF08 = 'itrf08'
     ITRF14 = 'itrf14'
+    ITRF20 = 'itrf20'
 
 
 class CoordType(str, Enum):
