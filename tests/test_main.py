@@ -280,6 +280,17 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
             (472952.339, 5363983.280, 18.806),
             0.001, 0.018
     ),
+    (
+            {
+                "s_ref_frame": Reference.ITRF20, 't_ref_frame': Reference.NAD83CSRS,
+                's_coords': CoordType.UTM10, 't_coords': CoordType.UTM10,
+                's_epoch': 2010, 't_epoch': 2010,
+                's_vd': VerticalDatum.GRS80, 't_vd': VerticalDatum.GRS80
+            },
+            (472952.399, 5363983.346, 0.291),
+            (472953.729, 5363982.898, 0.580),
+            0.001, 0.001
+    ),
 ])
 def test_csrs_transformer_itrf_to_nad83(transform_config, test_input, expected, xy_err, h_err):
     trans = CSRSTransformer(**transform_config)
@@ -565,6 +576,17 @@ def test_csrs_transformer_itrf_to_nad83(transform_config, test_input, expected, 
             (472952.399, 5363983.346, 0.291),
             (-123.365646, 48.428421, 0),
             1e-7, 0.001
+    ),
+    (
+            {
+                "t_ref_frame": Reference.ITRF20, 's_ref_frame': Reference.NAD83CSRS,
+                't_coords': CoordType.UTM10, 's_coords': CoordType.UTM10,
+                't_epoch': 2010.00, 's_epoch': 2010.000,
+                't_vd': VerticalDatum.GRS80, 's_vd': VerticalDatum.GRS80
+            },
+            (472952.399, 5363983.346, 0.291),
+            (472951.069, 5363983.794, 0.002),
+            0.001, 0.001
     ),
 ])
 def test_csrs_transformer_nad83_to_itrf(transform_config, test_input, expected, xy_err, h_err):
