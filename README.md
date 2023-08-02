@@ -13,11 +13,13 @@ Install with `pip install csrspy`
 
 CSRSPY provides coordinate transformation utilities to transform coordinates between various ITRF realization and NAD83 (CSRS).
 Furthermore, this library provides the ability to transform between reference epochs and between GRS80 ellipsoidal heights and 
-orthometric heights in CGG2013, CGG2013a, and HT2_2010v70 vertical datums. The library is tested against official tools
-provided by Natural Resources Canada for such transformation, but allows access to such transforms from a convenient Python
-function.
+orthometric heights in CGG2013, CGG2013a, and HT2_2010v70 vertical datums. 
 
-For an example tool using CSRSPY as it's backend to transform Lidar file point coordinates, see 
+CSRSPY is tested for accuracy against official tools from Natural Resources Canada (specifically,
+[TRX](https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/trx.php) and
+[GPS-H](https://webapp.csrs-scrs.nrcan-rncan.gc.ca/geod/tools-outils/gpsh.php)). 
+
+If you're hoping to transform LAS/LAZ file coordinates using CSRSPY, check out
 [LAS-TRX](https://github.com/HakaiInstitute/LAS-TRX).
 
 ## Example Usage
