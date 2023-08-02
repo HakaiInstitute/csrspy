@@ -2,7 +2,7 @@
 name = "csrspy"
 version = "0.0.0"
 description = "ITRF/NAD83CSRS coordinate transforms in Python"
-authors = ["Taylor Denouden <taylordenouden@gmail.com>"]
+authors = ["Taylor Denouden <taylor.denouden@hakai.org>"]
 packages = [
     { include = "csrspy" }
 ]
