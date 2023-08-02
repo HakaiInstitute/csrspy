@@ -10,10 +10,12 @@ packages = [
 python = "^3.9"
 pyproj = "^3.6"
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.test.dependencies]
 pytest = "^7.4"
 tox = "^4.6"
 coverage = "^7.2"
+
+[tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.3"
 ruff = "^0.0.282"
 black = "^23.7.0"
