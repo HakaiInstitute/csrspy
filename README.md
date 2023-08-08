@@ -28,14 +28,14 @@ If you're hoping to transform LAS/LAZ file coordinates using CSRSPY, check out
 from csrspy import CSRSTransformer
 from csrspy.enums import Reference, CoordType, VerticalDatum
 
-transformer = CSRSTransformer(s_ref_frame=Reference.ITRF14, t_ref_frame=Reference.ITRF00,
+transformer = CSRSTransformer(s_ref_frame=Reference.ITRF14, t_ref_frame=Reference.NAD83CSRS,
                               s_coords=CoordType.GEOG, t_coords=CoordType.UTM10,
-                              s_epoch=2002, t_epoch=2000,
-                              s_vd=VerticalDatum.GRS80, t_vd=VerticalDatum.GRS80)
+                              s_epoch=2023.58, t_epoch=2002.0,
+                              s_vd=VerticalDatum.GRS80, t_vd=VerticalDatum.CGG2013A)
 
 in_coords = [(-123.365646, 48.428421, 0)]
 out_coords = list(transformer(in_coords))
 
 print(out_coords)
-# >> [(472951.082, 5363983.805, 0.001)]
+# >> [(472952.4353700947, 5363983.41690525, 18.968777521543867)]
 ```
