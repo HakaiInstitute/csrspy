@@ -149,7 +149,7 @@ print(decimal_year)  # Output: 2023.4520547945206
 ### sync_missing_grid_files
 
 Synchronizes missing PROJ grid files for the Canada area of use. This function should be
-called to ensure all necessary grid files are downloaded beforehand using the
+called to ensure all necessary grid files are downloaded before using the
 `CSRSTransformer` class.
 
 ```python
