@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RuffConfigService">
-    <option name="projectRuffExecutablePath" value="$USER_HOME$/.cache/pypoetry/virtualenvs/csrspy-oufits4S-py3.11/bin/ruff" />
+    <option name="globalRuffExecutablePath" value="c:\users\tayde\.local\bin\ruff.exe" />
+    <option name="projectRuffExecutablePath" value="C:\Users\tayde\AppData\Local\pypoetry\Cache\virtualenvs\csrspy-ioqcxZ7U-py3.11\Scripts\ruff.exe" />
   </component>
 </project>

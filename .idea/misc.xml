@@ -2,9 +2,9 @@
 <project version="4">
   <component name="Black">
     <option name="enabledOnReformat" value="true" />
-    <option name="sdkUUID" value="e2195cd8-33a1-4c96-a01e-f20ecea88ebb" />
+    <option name="sdkName" value="Poetry (csrspy)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (csrspy) (2)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (csrspy)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>
