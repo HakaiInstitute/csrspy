@@ -167,7 +167,7 @@ Canada area. It uses the pyproj library to manage the synchronization process.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/tayden/csrspy.git
+   git clone https://github.com/HakaiInstitute/csrspy.git
    cd csrspy
    ```
 
