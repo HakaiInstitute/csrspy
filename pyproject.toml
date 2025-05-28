@@ -37,3 +37,32 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["csrspy"]
+
+[tool.ruff]
+fix = true
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "ALL",
+]
+ignore = [
+    "D211",  #no-blank-lines-before-class
+    "D213",  #multi-line-summary-second-line
+    "PLR0913", #too-many-arguments
+    "COM812",
+    "D203",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "D", # Docstring issues
+    "S101",  # Use of `assert`
+    "ANN001", # Annotations should be used
+    "ANN201", # Return type annotation missing
+    "PLR2004", # Magic values
+]
