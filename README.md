@@ -171,19 +171,19 @@ Canada area. It uses the pyproj library to manage the synchronization process.
    cd csrspy
    ```
 
-2. Install Poetry (if not already installed):
+2. Install uv (if not already installed):
    ```bash
-   curl -sSL https://install.python-poetry.org | python3 -
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
 3. Install dependencies:
    ```bash
-   poetry install
+   uv sync
    ```
 
 4. Activate the virtual environment:
    ```bash
-   poetry shell
+   source .venv/bin/activate
    ```
 
 ### Running Tests
@@ -191,13 +191,13 @@ Canada area. It uses the pyproj library to manage the synchronization process.
 To run the tests, use the following command:
 
 ```bash
-poetry run pytest
+uv run pytest
 ```
 
 To run tests across multiple Python versions, use tox:
 
 ```bash
-poetry run tox
+uv run tox
 ```
 
 ### Updating the Library
@@ -211,13 +211,17 @@ poetry run tox
 ### Publishing to PyPI
 
 1. Ensure all tests pass and the version number is updated.
-2. Create a new tag with the version number:
+2. Build the package:
+   ```bash
+   uv build
+   ```
+3. Create a new tag with the version number:
    ```bash
    git tag v0.1.0
    git push origin v0.1.0
    ```
 
-3. The GitHub Action will automatically build and publish the package to PyPI when a new
+4. The GitHub Action will automatically build and publish the package to PyPI when a new
    tag is pushed.
 
 ## Contributing
