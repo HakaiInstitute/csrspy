@@ -13,34 +13,29 @@ jobs:
   deploy:
 
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-    - name: Get tag
-      id: tag
-      run: |
-        echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: 3.12
 
-    - name: Setup Poetry
-      uses: abatilo/actions-poetry@v2.3.0
-      with:
-        poetry-version: 1.2.2
+      - name: Install dependencies
+        run: uv sync
 
-    - name: Install dependencies
-      run: |
-        poetry update
-        poetry run pip install --upgrade setuptools
+      - name: Update version and build
+        run: |
+          echo "__version__ = '${{ env.tag }}\n'" >> ./csrspy/__init__.py
+          sed -i 's/version = ".*"/version = "${{ env.tag }}"/' pyproject.toml
+          uv build
 
-    - name: Build and publish
-      env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        echo "__version__ = '${{ env.tag }}\n'" >> ./csrspy/__init__.py
-        poetry version ${{ env.tag }}
-        poetry publish --build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
