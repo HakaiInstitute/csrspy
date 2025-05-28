@@ -426,7 +426,7 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
     ],
 )
 def test_csrs_transformer_itrf_to_nad83(
-    transform_config, test_input, expected, xy_err, h_err
+    transform_config, test_input, expected, xy_err, h_err,
 ):
     trans = CSRSTransformer(**transform_config)
     out = list(trans([test_input]))[0]
@@ -858,7 +858,7 @@ def test_csrs_transformer_itrf_to_nad83(
     ],
 )
 def test_csrs_transformer_nad83_to_itrf(
-    transform_config, test_input, expected, xy_err, h_err
+    transform_config, test_input, expected, xy_err, h_err,
 ):
     trans = CSRSTransformer(**transform_config)
     out = list(trans([test_input]))[0]
@@ -920,3 +920,216 @@ def test_csrs_transformer_itrf_to_itrf_transform():
     assert pytest.approx(out[0], abs=0.001) == 472951.082
     assert pytest.approx(out[1], abs=0.001) == 5363983.805
     assert pytest.approx(out[2], abs=0.001) == 0.001
+
+
+@pytest.mark.parametrize(
+    "s_ref,t_ref,test_input,expected,err",
+    [
+        # ITRF14 ECEF to NAD83CSRS ECEF
+        (
+            Reference.ITRF14,
+            Reference.NAD83CSRS,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.174, -3541320.170, 4748618.925),
+            0.01,
+        ),
+        # WGS84 ECEF to NAD83CSRS ECEF
+        (
+            Reference.WGS84,
+            Reference.NAD83CSRS,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.174, -3541320.170, 4748618.925),
+            0.01,
+        ),
+        # NAD83CSRS ECEF to ITRF14 ECEF
+        (
+            Reference.NAD83CSRS,
+            Reference.ITRF14,
+            (-2332022.174, -3541320.170, 4748618.925),
+            (-2332023.000, -3541319.000, 4748619.000),
+            0.01,
+        ),
+        # NAD83CSRS ECEF to WGS84 ECEF
+        (
+            Reference.NAD83CSRS,
+            Reference.WGS84,
+            (-2332022.174, -3541320.170, 4748618.925),
+            (-2332023.000, -3541319.000, 4748619.000),
+            0.01,
+        ),
+        # ITRF00 ECEF to ITRF14 ECEF
+        (
+            Reference.ITRF00,
+            Reference.ITRF14,
+            (-2332023.005, -3541319.006, 4748619.019),
+            (-2332023.001, -3541319.000, 4748619.035),
+            0.01,
+        ),
+        # ITRF14 ECEF to ITRF08 ECEF
+        (
+            Reference.ITRF14,
+            Reference.ITRF08,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.998, -3541318.998, 4748619.002),
+            0.01,
+        ),
+        # ITRF05 ECEF to ITRF20 ECEF
+        (
+            Reference.ITRF05,
+            Reference.ITRF20,
+            (-2332023.002, -3541319.003, 4748619.009),
+            (-2332023.002, -3541319.002, 4748619.009),
+            0.01,
+        ),
+    ],
+)
+def test_ecef_coordinate_transformations(s_ref, t_ref, test_input, expected, err):
+    """Test ECEF (cartesian) coordinate transformations between different reference frames."""
+    trans = CSRSTransformer(
+        s_ref_frame=s_ref,
+        t_ref_frame=t_ref,
+        s_coords=CoordType.CART,
+        t_coords=CoordType.CART,
+        s_epoch=2010,
+        t_epoch=2010,
+        s_vd=VerticalDatum.GRS80 if s_ref != Reference.WGS84 else VerticalDatum.WGS84,
+        t_vd=VerticalDatum.GRS80 if t_ref != Reference.WGS84 else VerticalDatum.WGS84,
+    )
+    out = list(trans([test_input]))[0]
+
+    assert pytest.approx(out[0], abs=err) == expected[0]
+    assert pytest.approx(out[1], abs=err) == expected[1]
+    assert pytest.approx(out[2], abs=err) == expected[2]
+
+
+@pytest.mark.parametrize(
+    "ref_frame,test_input,expected,err",
+    [
+        # ITRF14 ECEF to GEOG and back
+        (
+            Reference.ITRF14,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332023.000, -3541319.000, 4748619.000),
+            0.001,
+        ),
+        # WGS84 ECEF to GEOG and back
+        (
+            Reference.WGS84,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332023.000, -3541319.000, 4748619.000),
+            0.001,
+        ),
+        # ITRF00 ECEF to GEOG and back
+        (
+            Reference.ITRF00,
+            (-2332023.005, -3541319.006, 4748619.019),
+            (-2332023.005, -3541319.006, 4748619.019),
+            0.001,
+        ),
+        # ITRF08 ECEF to GEOG and back
+        (
+            Reference.ITRF08,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332023.000, -3541319.000, 4748619.000),
+            0.001,
+        ),
+        # ITRF20 ECEF to GEOG and back
+        (
+            Reference.ITRF20,
+            (-2332023.001, -3541319.001, 4748619.001),
+            (-2332023.001, -3541319.001, 4748619.001),
+            0.001,
+        ),
+    ],
+)
+def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
+    """Test ECEF coordinates converted to geographic and back maintain precision."""
+    # ECEF to Geographic
+    trans_to_geog = CSRSTransformer(
+        s_ref_frame=ref_frame,
+        t_ref_frame=ref_frame,
+        s_coords=CoordType.CART,
+        t_coords=CoordType.GEOG,
+        s_epoch=2010,
+        t_epoch=2010,
+        s_vd=VerticalDatum.GRS80
+        if ref_frame != Reference.WGS84
+        else VerticalDatum.WGS84,
+        t_vd=VerticalDatum.GRS80
+        if ref_frame != Reference.WGS84
+        else VerticalDatum.WGS84,
+    )
+
+    # Geographic back to ECEF
+    trans_to_cart = CSRSTransformer(
+        s_ref_frame=ref_frame,
+        t_ref_frame=ref_frame,
+        s_coords=CoordType.GEOG,
+        t_coords=CoordType.CART,
+        s_epoch=2010,
+        t_epoch=2010,
+        s_vd=VerticalDatum.GRS80
+        if ref_frame != Reference.WGS84
+        else VerticalDatum.WGS84,
+        t_vd=VerticalDatum.GRS80
+        if ref_frame != Reference.WGS84
+        else VerticalDatum.WGS84,
+    )
+
+    # Convert to geographic and back
+    geog_coords = list(trans_to_geog([test_input]))[0]
+    final_coords = list(trans_to_cart([geog_coords]))[0]
+
+    assert pytest.approx(final_coords[0], abs=err) == expected[0]
+    assert pytest.approx(final_coords[1], abs=err) == expected[1]
+    assert pytest.approx(final_coords[2], abs=err) == expected[2]
+
+
+@pytest.mark.parametrize(
+    "ref_frame,epoch,test_input,expected,err",
+    [
+        # ITRF14 ECEF with epoch transformation
+        (
+            Reference.ITRF14,
+            2007,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.202, -3541320.169, 4748618.915),
+            0.1,
+        ),
+        # WGS84 ECEF with epoch transformation
+        (
+            Reference.WGS84,
+            2014,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.136, -3541320.173, 4748618.937),
+            0.1,
+        ),
+        # ITRF08 ECEF with epoch transformation
+        (
+            Reference.ITRF08,
+            2014,
+            (-2332023.000, -3541319.000, 4748619.000),
+            (-2332022.138, -3541320.175, 4748618.935),
+            0.1,
+        ),
+    ],
+)
+def test_ecef_epoch_transformations(ref_frame, epoch, test_input, expected, err):
+    """Test ECEF coordinates with epoch transformations through NAD83CSRS."""
+    trans = CSRSTransformer(
+        s_ref_frame=ref_frame,
+        t_ref_frame=Reference.NAD83CSRS,
+        s_coords=CoordType.CART,
+        t_coords=CoordType.CART,
+        s_epoch=2010,
+        t_epoch=epoch,
+        s_vd=VerticalDatum.GRS80
+        if ref_frame != Reference.WGS84
+        else VerticalDatum.WGS84,
+        t_vd=VerticalDatum.GRS80,
+    )
+    out = list(trans([test_input]))[0]
+
+    assert pytest.approx(out[0], abs=err) == expected[0]
+    assert pytest.approx(out[1], abs=err) == expected[1]
+    assert pytest.approx(out[2], abs=err) == expected[2]
