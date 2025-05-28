@@ -4,9 +4,10 @@ from enum import Enum
 
 
 class VerticalDatum(str, Enum):
-    """Enum for vertical datums used in the CRS (Coordinate Reference System) definitions.
+    """Enum for vertical datums used in CRS definitions.
 
-    This enum defines various vertical datums that can be used in geospatial applications.
+    This enum defines various vertical datums that can be used in geospatial
+    applications.
 
     Attributes:
         WGS84: World Geodetic System 1984.
@@ -25,9 +26,10 @@ class VerticalDatum(str, Enum):
 
 
 class Reference(str, Enum):
-    """Enum for reference systems used in the CRS (Coordinate Reference System) definitions.
+    """Enum for reference systems used in CRS definitions.
 
-    This enum defines various reference systems that can be used in geospatial applications.
+    This enum defines various reference systems that can be used in geospatial
+    applications.
 
     Attributes:
         WGS84: World Geodetic System 1984.
@@ -68,9 +70,10 @@ class Reference(str, Enum):
 
 
 class CoordType(str, Enum):
-    """Enum for coordinate types used in the CRS (Coordinate Reference System) definitions.
+    """Enum for coordinate types used in CRS definitions.
 
-    This enum defines various coordinate systems that can be used in geospatial applications.
+    This enum defines various coordinate systems that can be used in geospatial
+    applications.
 
     Attributes:
         GEOG: Geographic coordinate system.

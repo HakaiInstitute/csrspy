@@ -135,20 +135,21 @@ class HelmertFactory(Factory):
         """Create a Helmert transformation based on the reference frame.
 
         Args:
-            ref_frame (Reference | str): The reference frame for which to create the transformation.
+            ref_frame (Reference | str): The reference frame for which to create
+                the transformation.
 
         Returns:
-            HelmertFactory: An instance of HelmertFactory with the parameters for the specified reference frame.
+            HelmertFactory: An instance of HelmertFactory with the parameters for
+                the specified reference frame.
 
         Raises:
             KeyError: If the reference frame is not recognized.
 
         """
-        if ref_frame == Reference.NAD83CSRS:
-            return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2010)
-
-        if ref_frame == Reference.ITRF88:
-            return cls(
+        # Define all transformation parameters in a dictionary
+        params = {
+            Reference.NAD83CSRS: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2010),
+            Reference.ITRF88: (
                 0.97300,
                 0.00000,
                 -1.90720,
@@ -164,10 +165,8 @@ class HelmertFactory(Factory):
                 -7.40000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF89:
-            return cls(
+            ),
+            Reference.ITRF89: (
                 0.96800,
                 0.00000,
                 -1.94320,
@@ -183,10 +182,8 @@ class HelmertFactory(Factory):
                 -4.30000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF90:
-            return cls(
+            ),
+            Reference.ITRF90: (
                 0.97300,
                 0.00000,
                 -1.91920,
@@ -202,10 +199,8 @@ class HelmertFactory(Factory):
                 -0.90000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF91:
-            return cls(
+            ),
+            Reference.ITRF91: (
                 0.97100,
                 0.00000,
                 -1.92320,
@@ -221,10 +216,8 @@ class HelmertFactory(Factory):
                 -0.60000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF92:
-            return cls(
+            ),
+            Reference.ITRF92: (
                 0.98300,
                 0.00000,
                 -1.90920,
@@ -240,10 +233,8 @@ class HelmertFactory(Factory):
                 0.80000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF93:
-            return cls(
+            ),
+            Reference.ITRF93: (
                 1.04880,
                 0.00290,
                 -1.91100,
@@ -259,10 +250,8 @@ class HelmertFactory(Factory):
                 -0.40000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame in {Reference.ITRF94, Reference.ITRF96}:
-            return cls(
+            ),
+            Reference.ITRF94: (
                 0.99100,
                 0.00000,
                 -1.90720,
@@ -278,10 +267,25 @@ class HelmertFactory(Factory):
                 0.00000,
                 0.00000,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF97:
-            return cls(
+            ),
+            Reference.ITRF96: (
+                0.99100,
+                0.00000,
+                -1.90720,
+                0.00000,
+                -0.51290,
+                0.00000,
+                -26.48160,
+                -0.05320,
+                -0.00010,
+                0.74230,
+                -11.24920,
+                0.03160,
+                0.00000,
+                0.00000,
+                2010,
+            ),
+            Reference.ITRF97: (
                 0.99790,
                 0.00069,
                 -1.90871,
@@ -297,10 +301,8 @@ class HelmertFactory(Factory):
                 -3.43109,
                 -0.19201,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF00:
-            return cls(
+            ),
+            Reference.ITRF00: (
                 1.00460,
                 0.00069,
                 -1.91041,
@@ -316,10 +318,8 @@ class HelmertFactory(Factory):
                 -1.75109,
                 -0.18201,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF05:
-            return cls(
+            ),
+            Reference.ITRF05: (
                 1.00270,
                 0.00049,
                 -1.91021,
@@ -335,10 +335,8 @@ class HelmertFactory(Factory):
                 -0.55109,
                 -0.10201,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF08:
-            return cls(
+            ),
+            Reference.ITRF08: (
                 1.00370,
                 0.00079,
                 -1.91111,
@@ -354,10 +352,8 @@ class HelmertFactory(Factory):
                 0.38891,
                 -0.10201,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF14:
-            return cls(
+            ),
+            Reference.ITRF14: (
                 1.00530,
                 0.00079,
                 -1.90921,
@@ -373,10 +369,8 @@ class HelmertFactory(Factory):
                 0.36891,
                 -0.07201,
                 2010,
-            )
-
-        if ref_frame == Reference.ITRF20:
-            return cls(
+            ),
+            Reference.ITRF20: (
                 1.00390,
                 0.00079,
                 -1.90961,
@@ -392,9 +386,13 @@ class HelmertFactory(Factory):
                 -0.05109,
                 -0.07201,
                 2010,
-            )
+            ),
+        }
 
-        raise KeyError(ref_frame)
+        try:
+            return cls(*params[ref_frame])
+        except KeyError:
+            raise KeyError(ref_frame) from None
 
 
 @dataclass(frozen=True)

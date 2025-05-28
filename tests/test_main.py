@@ -984,7 +984,8 @@ def test_csrs_transformer_itrf_to_itrf_transform():
     ],
 )
 def test_ecef_coordinate_transformations(s_ref, t_ref, test_input, expected, err):
-    """Test ECEF (cartesian) coordinate transformations between different reference frames."""
+    """Test ECEF (cartesian) coordinate transformations between different
+    reference frames."""
     trans = CSRSTransformer(
         s_ref_frame=s_ref,
         t_ref_frame=t_ref,

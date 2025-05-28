@@ -1,6 +1,7 @@
 """Utility functions for the CSRSPY project.
 
-This module provides functions for date conversion and synchronization of PROJ grid files.
+This module provides functions for date conversion and synchronization of PROJ
+grid files.
 """
 
 import logging

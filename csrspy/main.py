@@ -1,10 +1,17 @@
-"""Module for transforming coordinates between different reference frames, epochs, and vertical datums."""
+"""Module for transforming coordinates between different reference frames.
+
+Transforms coordinates between different reference frames, epochs, and vertical datums.
+
+"""
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from pyproj import CRS, Transformer
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 from pyproj.enums import TransformDirection
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
@@ -107,7 +114,9 @@ class _ToNAD83:
         return coord[0], coord[1], coord[2]
 
     def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
-        """Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
+        """Transform coordinates from s_ref_frame, s_crs, s_epoch to Nad83(CSRS).
+
+        `t_epoch`, `t_vd`, with coordinate type `out`.
 
         Args:
             coords: An iterable of 3D coordinates in the s_ref_frame, s_crs, s_epoch.
@@ -205,7 +214,8 @@ class CSRSTransformer:
             t_coords: The target coordinate type.
             t_epoch: The target epoch in decimal year format.
             t_vd: The target orthometric heights model.
-            epoch_shift_grid: The name of the proj grid file used for epoch transformations.
+            epoch_shift_grid: The name of the proj grid file used for epoch
+                transformations.
 
         Raises:
             ValueError: If the reference frame and vertical datum are incompatible.
@@ -365,7 +375,9 @@ class CSRSTransformer:
             raise ValueError(msg)
 
     def __call__(self, coords: Iterable[T_Coord3D]) -> Iterable[T_Coord3D]:
-        """Transform the coordinates from the s_ref_frame, s_crs, s_epoch to Nad83(CSRS), `t_epoch`, `t_vd`, with coordinate type `out`.
+        """Transform coordinates from s_ref_frame, s_crs, s_epoch to Nad83(CSRS).
+
+        `t_epoch`, `t_vd`, with coordinate type `out`.
 
         Args:
             coords: A list of 3D coordinates to transform
