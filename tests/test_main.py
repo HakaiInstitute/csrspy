@@ -426,7 +426,7 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
     ],
 )
 def test_csrs_transformer_itrf_to_nad83(
-    transform_config, test_input, expected, xy_err, h_err
+    transform_config, test_input, expected, xy_err, h_err,
 ):
     trans = CSRSTransformer(**transform_config)
     out = list(trans([test_input]))[0]
@@ -858,7 +858,7 @@ def test_csrs_transformer_itrf_to_nad83(
     ],
 )
 def test_csrs_transformer_nad83_to_itrf(
-    transform_config, test_input, expected, xy_err, h_err
+    transform_config, test_input, expected, xy_err, h_err,
 ):
     trans = CSRSTransformer(**transform_config)
     out = list(trans([test_input]))[0]
@@ -962,24 +962,24 @@ def test_csrs_transformer_itrf_to_itrf_transform():
             Reference.ITRF00,
             Reference.ITRF14,
             (-2332023.005, -3541319.006, 4748619.019),
-            (-2332023.000, -3541319.000, 4748619.035),
-            0.05,
+            (-2332023.001, -3541319.000, 4748619.035),
+            0.01,
         ),
         # ITRF14 ECEF to ITRF08 ECEF
         (
             Reference.ITRF14,
             Reference.ITRF08,
             (-2332023.000, -3541319.000, 4748619.000),
-            (-2332023.000, -3541319.000, 4748619.000),
-            0.02,
+            (-2332022.998, -3541318.998, 4748619.002),
+            0.01,
         ),
         # ITRF05 ECEF to ITRF20 ECEF
         (
             Reference.ITRF05,
             Reference.ITRF20,
             (-2332023.002, -3541319.003, 4748619.009),
-            (-2332023.001, -3541319.001, 4748619.001),
-            0.02,
+            (-2332023.002, -3541319.002, 4748619.009),
+            0.01,
         ),
     ],
 )
@@ -1093,7 +1093,7 @@ def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
             Reference.ITRF14,
             2007,
             (-2332023.000, -3541319.000, 4748619.000),
-            (-2332022.202, -3541320.169, 4748618.917),
+            (-2332022.202, -3541320.169, 4748618.915),
             0.1,
         ),
         # WGS84 ECEF with epoch transformation
@@ -1101,7 +1101,7 @@ def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
             Reference.WGS84,
             2014,
             (-2332023.000, -3541319.000, 4748619.000),
-            (-2332022.136, -3541320.173, 4748618.935),
+            (-2332022.136, -3541320.173, 4748618.937),
             0.1,
         ),
         # ITRF08 ECEF with epoch transformation
@@ -1109,7 +1109,7 @@ def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
             Reference.ITRF08,
             2014,
             (-2332023.000, -3541319.000, 4748619.000),
-            (-2332022.137, -3541320.173, 4748618.935),
+            (-2332022.138, -3541320.175, 4748618.935),
             0.1,
         ),
     ],
