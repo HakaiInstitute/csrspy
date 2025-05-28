@@ -4,7 +4,7 @@
     <option name="enabledOnReformat" value="true" />
     <option name="sdkName" value="Poetry (csrspy)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (csrspy)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="uv (csrspy)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>

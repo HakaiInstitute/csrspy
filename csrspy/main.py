@@ -87,7 +87,7 @@ class _ToNAD83:
 
         if coord_type == CoordType.GEOG:
             return f"+proj=longlat +ellps={ellps} +no_defs"
-        if coord_type == CoordType.CART:
+        elif coord_type == CoordType.CART:
             return f"+proj=cart +ellps={ellps} +no_defs"
         else:
             zone = int(coord_type.value[3:])
