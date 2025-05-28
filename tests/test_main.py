@@ -5,7 +5,7 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
 
 
 @pytest.mark.parametrize(
-    "transform_config,test_input,expected,xy_err,h_err",
+    ("transform_config", "test_input", "expected", "xy_err", "h_err"),
     [
         (
             {
@@ -426,10 +426,10 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
     ],
 )
 def test_csrs_transformer_itrf_to_nad83(
-    transform_config, test_input, expected, xy_err, h_err,
+    transform_config, test_input, expected, xy_err, h_err
 ):
     trans = CSRSTransformer(**transform_config)
-    out = list(trans([test_input]))[0]
+    out = next(iter(trans([test_input])))
 
     assert pytest.approx(out[0], abs=xy_err) == expected[0]
     assert pytest.approx(out[1], abs=xy_err) == expected[1]
@@ -437,7 +437,7 @@ def test_csrs_transformer_itrf_to_nad83(
 
 
 @pytest.mark.parametrize(
-    "transform_config,test_input,expected,xy_err,h_err",
+    ("transform_config", "test_input", "expected", "xy_err", "h_err"),
     [
         (
             {
@@ -858,10 +858,10 @@ def test_csrs_transformer_itrf_to_nad83(
     ],
 )
 def test_csrs_transformer_nad83_to_itrf(
-    transform_config, test_input, expected, xy_err, h_err,
+    transform_config, test_input, expected, xy_err, h_err
 ):
     trans = CSRSTransformer(**transform_config)
-    out = list(trans([test_input]))[0]
+    out = next(iter(trans([test_input])))
 
     assert pytest.approx(out[0], abs=xy_err) == expected[0]
     assert pytest.approx(out[1], abs=xy_err) == expected[1]
@@ -879,7 +879,7 @@ def test_csrs_transformer_nad83_ortho_to_ortho_transform():
         s_vd=VerticalDatum.CGG2013A,
         t_vd=VerticalDatum.HT2_2010v70,
     )
-    out = list(trans([(472952.272, 5363983.238, 18.969)]))[0]
+    out = next(iter(trans([(472952.272, 5363983.238, 18.969)])))
 
     assert pytest.approx(out[0], abs=0.001) == 472952.272
     assert pytest.approx(out[1], abs=0.001) == 5363983.238
@@ -897,7 +897,7 @@ def test_csrs_transformer_nad83_vd_to_grs80_transform():
         s_vd=VerticalDatum.CGG2013A,
         t_vd=VerticalDatum.GRS80,
     )
-    out = list(trans([(472952.272, 5363983.238, 18.969)]))[0]
+    out = next(iter(trans([(472952.272, 5363983.238, 18.969)])))
 
     assert pytest.approx(out[0], abs=0.001) == 472952.272
     assert pytest.approx(out[1], abs=0.001) == 5363983.238
@@ -915,7 +915,7 @@ def test_csrs_transformer_itrf_to_itrf_transform():
         s_vd=VerticalDatum.GRS80,
         t_vd=VerticalDatum.GRS80,
     )
-    out = list(trans([(-123.365646, 48.428421, 0)]))[0]
+    out = next(iter(trans([(-123.365646, 48.428421, 0)])))
 
     assert pytest.approx(out[0], abs=0.001) == 472951.082
     assert pytest.approx(out[1], abs=0.001) == 5363983.805
@@ -923,7 +923,7 @@ def test_csrs_transformer_itrf_to_itrf_transform():
 
 
 @pytest.mark.parametrize(
-    "s_ref,t_ref,test_input,expected,err",
+    ("s_ref", "t_ref", "test_input", "expected", "err"),
     [
         # ITRF14 ECEF to NAD83CSRS ECEF
         (
@@ -995,7 +995,7 @@ def test_ecef_coordinate_transformations(s_ref, t_ref, test_input, expected, err
         s_vd=VerticalDatum.GRS80 if s_ref != Reference.WGS84 else VerticalDatum.WGS84,
         t_vd=VerticalDatum.GRS80 if t_ref != Reference.WGS84 else VerticalDatum.WGS84,
     )
-    out = list(trans([test_input]))[0]
+    out = next(iter(trans([test_input])))
 
     assert pytest.approx(out[0], abs=err) == expected[0]
     assert pytest.approx(out[1], abs=err) == expected[1]
@@ -1003,7 +1003,7 @@ def test_ecef_coordinate_transformations(s_ref, t_ref, test_input, expected, err
 
 
 @pytest.mark.parametrize(
-    "ref_frame,test_input,expected,err",
+    ("ref_frame", "test_input", "expected", "err"),
     [
         # ITRF14 ECEF to GEOG and back
         (
@@ -1077,8 +1077,8 @@ def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
     )
 
     # Convert to geographic and back
-    geog_coords = list(trans_to_geog([test_input]))[0]
-    final_coords = list(trans_to_cart([geog_coords]))[0]
+    geog_coords = next(iter(trans_to_geog([test_input])))
+    final_coords = next(iter(trans_to_cart([geog_coords])))
 
     assert pytest.approx(final_coords[0], abs=err) == expected[0]
     assert pytest.approx(final_coords[1], abs=err) == expected[1]
@@ -1086,7 +1086,7 @@ def test_ecef_roundtrip_transformations(ref_frame, test_input, expected, err):
 
 
 @pytest.mark.parametrize(
-    "ref_frame,epoch,test_input,expected,err",
+    ("ref_frame", "epoch", "test_input", "expected", "err"),
     [
         # ITRF14 ECEF with epoch transformation
         (
@@ -1128,7 +1128,7 @@ def test_ecef_epoch_transformations(ref_frame, epoch, test_input, expected, err)
         else VerticalDatum.WGS84,
         t_vd=VerticalDatum.GRS80,
     )
-    out = list(trans([test_input]))[0]
+    out = next(iter(trans([test_input])))
 
     assert pytest.approx(out[0], abs=err) == expected[0]
     assert pytest.approx(out[1], abs=err) == expected[1]
